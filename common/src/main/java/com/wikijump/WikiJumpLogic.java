@@ -1,13 +1,13 @@
 package com.wikijump;
 
 import com.wikijump.config.WikiJumpConfig;
+import com.wikijump.wiki.EnglishNames;
 import com.wikijump.wiki.WikiSite;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.resources.language.ClientLanguage;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -22,7 +22,6 @@ import net.minecraft.world.phys.HitResult;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * Loader-independent core: resolves what the player is looking at (hovered
@@ -154,7 +153,7 @@ public final class WikiJumpLogic {
      */
     private static void openWikiInEnglish(String pageTitle, String translationKey,
                                           String namespace, WikiJumpConfig cfg) {
-        String englishName = englishName(translationKey, pageTitle);
+        String englishName = EnglishNames.resolve(translationKey, pageTitle);
         if (!"minecraft".equals(namespace) && !cfg.isCustom() && !cfg.moddedForeignUrl.isEmpty()) {
             openUrl(applyTemplate(cfg.moddedForeignUrl, englishName), englishName,
                     "message.wikijump.searching");
@@ -171,32 +170,6 @@ public final class WikiJumpLogic {
         }
         openUrl(site.englishCounterpart().urlFor(englishName), englishName,
                 "message.wikijump.opening");
-    }
-
-    /**
-     * Resolves the target's in-game English (en_us) name from its translation
-     * key. Loads the en_us language files of vanilla and every installed mod
-     * from the resource manager, so the result is exactly the name shown by an
-     * English-language game. Falls back to the localized display name when no
-     * English translation exists.
-     */
-    private static String englishName(String translationKey, String fallback) {
-        if (translationKey == null || translationKey.isEmpty()) {
-            return fallback;
-        }
-        try {
-            ClientLanguage english = ClientLanguage.loadFrom(
-                    Minecraft.getInstance().getResourceManager(), List.of("en_us"), false);
-            if (english.has(translationKey)) {
-                String name = english.getOrDefault(translationKey, translationKey);
-                if (!name.isEmpty() && !name.equals(translationKey)) {
-                    return name;
-                }
-            }
-        } catch (Exception e) {
-            WikiJump.LOGGER.error("Failed to resolve English name for {}", translationKey, e);
-        }
-        return fallback;
     }
 
     /** Opens the URL in the system browser, with an action-bar message on success. */
