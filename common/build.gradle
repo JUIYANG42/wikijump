@@ -1,0 +1,33 @@
+plugins {
+    id 'wikijump-common'
+    id 'net.neoforged.moddev'
+}
+
+// The common module compiles against vanilla NeoForm (Mojang mappings) only;
+// no loader-specific APIs are referenced here.
+neoForge {
+    neoFormVersion = neo_form_version
+    // Apply the common AT (Mojmap names) so hoveredSlot is visible to common code.
+    def at = file('src/main/resources/META-INF/wikijump-common.cfg')
+    if (at.exists()) {
+        accessTransformers.from(at.absolutePath)
+    }
+}
+
+// Expose common's sources and resources as consumable configurations so the
+// loader projects can compile them into their own jars (source-level sharing).
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
+}

@@ -1,0 +1,28 @@
+plugins {
+    id 'wikijump-loader'
+    id 'net.neoforged.moddev'
+}
+
+neoForge {
+    version = neoforge_version
+    // Enable AccessTransformers from the shared common module (Mojmap names).
+    // The AT opens AbstractContainerScreen#hoveredSlot for hover detection in
+    // container screens.
+    def at = project(':common').file('src/main/resources/META-INF/wikijump-common.cfg')
+    if (at.exists()) {
+        accessTransformers.from(at.absolutePath)
+    }
+    runs {
+        configureEach {
+            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
+        }
+        client {
+            client()
+        }
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}

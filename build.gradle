@@ -1,0 +1,9 @@
+plugins {
+    // MultiLoader-Template-style root: loader plugins applied once, subprojects opt in by id
+    // Loom 1.11 officially supports Gradle 8.14 and 9.0 (1.12+ is the last Gradle-8 line;
+    // 1.13+/1.17 require Gradle 9). ForgeGradle 6 only supports Gradle 8, so 1.11.8 it is.
+    id 'fabric-loom' version '1.11.8' apply false
+    id 'net.neoforged.moddev' version '2.0.146' apply false
+    // ForgeGradle is resolved through pluginManagement in settings.gradle
+    // and version-pinned directly in forge/build.gradle
+}

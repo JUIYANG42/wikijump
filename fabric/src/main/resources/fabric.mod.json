@@ -1,0 +1,28 @@
+{
+    "schemaVersion": 1,
+    "id": "${mod_id}",
+    "version": "${version}",
+    "name": "${mod_name}",
+    "description": "${description}",
+    "authors": [
+        "${mod_author}"
+    ],
+    "contact": {
+        "homepage": "https://github.com/wikijump/wikijump",
+        "sources": "https://github.com/wikijump/wikijump"
+    },
+    "license": "${license}",
+    "environment": "client",
+    "entrypoints": {
+        "client": [
+            "com.wikijump.fabric.WikiJumpFabricClient"
+        ]
+    },
+    "accessWidener": "${mod_id}.accesswidener",
+    "depends": {
+        "fabricloader": ">=${fabric_loader_version}",
+        "fabric-api": "*",
+        "minecraft": "${minecraft_version}",
+        "java": ">=${java_version}"
+    }
+}

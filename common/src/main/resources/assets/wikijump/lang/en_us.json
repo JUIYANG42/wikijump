@@ -1,0 +1,9 @@
+{
+    "key.categories.wikijump": "Wiki Jump",
+    "key.wikijump.open_wiki": "Open Wiki Page (Shift: English foreign search)",
+
+    "message.wikijump.opening": "Opening wiki page: %s",
+    "message.wikijump.searching": "Searching: %s",
+    "message.wikijump.no_target": "No block, entity or item to look up.",
+    "message.wikijump.open_failed": "Failed to open the wiki page."
+}
