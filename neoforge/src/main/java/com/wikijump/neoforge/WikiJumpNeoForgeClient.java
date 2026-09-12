@@ -2,6 +2,7 @@ package com.wikijump.neoforge;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.wikijump.WikiJump;
+import com.wikijump.WikiJumpCommands;
 import com.wikijump.WikiJumpLogic;
 import com.wikijump.WikiKey;
 import net.minecraft.client.KeyMapping;
@@ -10,6 +11,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -35,6 +37,11 @@ public class WikiJumpNeoForgeClient {
             );
             event.register(WikiKey.openWiki);
         }
+    }
+
+    @SubscribeEvent
+    public void onClientCommands(RegisterClientCommandsEvent event) {
+        event.getDispatcher().register(WikiJumpCommands.build());
     }
 
     @SubscribeEvent

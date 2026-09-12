@@ -16,6 +16,8 @@
 - **强制英文外网搜索**：按住 Shift 再按键（默认 `Shift+K`），用目标**游戏内的英文名称**（en_us 翻译，模组内容同样支持）搜索外网 Wiki——模组内容走 `moddedForeignUrl`（默认 FTB Wiki），原版内容走所配置 Wiki 的英文对应站（中文站自动切换为 `minecraft.wiki`）。对中文名物品想查英文资料时特别有用
 - 页面标题使用游戏内本地化名称（中文游戏 → 中文页面），URL 自动编码
 - 原版内容默认 Wiki 站点自动跟随游戏语言：中文 → `zh.minecraft.wiki`，其他语言 → `minecraft.wiki`
+- **游戏内设置界面**：输入 `/wikijump` 即可调整全部选项，改完即时生效，不必手改 JSON
+- **命令查询**：`/wikijump <名称>` 直接查任意词条，不需要先拿着物品或对着方块
 
 ## 查询规则
 
@@ -36,9 +38,31 @@
 
 可在游戏内 `选项 → 控件设置` 中修改。
 
+## 命令
+
+| 命令 | 功能 |
+|---|---|
+| `/wikijump` | 打开设置界面 |
+| `/wikijump config` | 同上 |
+| `/wikijump <名称>` | 用当前配置的 Wiki 站查询任意名称，支持空格（如 `/wikijump 钻石剑`） |
+
+命令是纯客户端的，单人游戏和多人服务器都能用，不需要 OP 权限。适合写文档、查资料时使用——不必先在游戏里找到那个东西。
+
+## 游戏内设置界面
+
+输入 `/wikijump` 打开，可调整全部选项：
+
+- **Wiki 站点**：跟随游戏语言 / minecraft.wiki / zh.minecraft.wiki / 两个 Fandom 站 / 自定义 URL
+- **三个 URL 模板**：自定义、模组·中文名搜索、模组·其他语言搜索
+- **两个开关**：无目标时回退主手物品、打开页面时显示提示
+
+界面里的改动**立即生效**，关闭时自动写入 `config/wikijump.json`。未选中「自定义 URL」站点时，自定义模板输入框会置灰。
+
 ## 配置文件
 
 位置：`config/wikijump.json`（首次启动自动生成）
+
+> 推荐用 `/wikijump` 设置界面修改；这份说明供手动编辑或版本管理时参考。
 
 ```json
 {
@@ -62,7 +86,7 @@
 
 提示：mcmod.cn 也支持英文关键词搜索，若你所在地区无法访问 Fandom/FTB Wiki，可把 `moddedForeignUrl` 也改为 `https://search.mcmod.cn/s?key={name}`。
 
-修改后重启游戏生效。
+通过设置界面修改**即时生效**；手动编辑本文件后需要重启游戏（配置只在首次使用时读取一次）。
 
 ## 从源码构建
 
@@ -92,7 +116,7 @@
 
 ```
 wikijump/
-├── common/    # 共享核心逻辑（目标解析、URL 构建、配置），被三端分别编译
+├── common/    # 共享核心逻辑（目标解析、URL 构建、配置、设置界面、命令树），被三端分别编译
 ├── fabric/    # Fabric 适配器（按键注册、屏幕/刻事件桥接）+ access widener
 ├── neoforge/  # NeoForge 适配器 + access transformer
 ├── forge/     # Forge 适配器 + access transformer
@@ -106,6 +130,8 @@ wikijump/
 - 原版内容直达词条页面；**模组内容打开的是搜索页**而非直接词条
 - 不拦截 JEI/EMI 等第三方界面的物品悬停区域
 - 极少数页面标题与游戏内显示名不一致时会落到搜索/不存在页面
+- 设置界面是自绘的 vanilla `Screen`，故意不引入 Cloth Config 等第三方配置库，以保持零依赖
+- 暂不提供「mod id → Modrinth 项目页」的精确跳转：注册表 namespace 与 Modrinth 的项目 slug 只有约六成一致（`twilightforest` 对应 `twilight-forest`、`cloth_config` 对应 `cloth-config`、`tconstruct` 对应 `tinkers-construct`），直接拼 URL 会大量 404，因此模组内容仍走关键词搜索
 - `minecraft.fandom.com` / `ftb.fandom.com` 在部分地区无法直连（可改用 `auto`，或把模组查询 URL 都指向 mcmod.cn）
 - 服务端不需要安装本模组（纯客户端功能）
 

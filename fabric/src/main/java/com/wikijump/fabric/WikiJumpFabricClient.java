@@ -1,9 +1,11 @@
 package com.wikijump.fabric;
 
 import com.wikijump.WikiJump;
+import com.wikijump.WikiJumpCommands;
 import com.wikijump.WikiJumpLogic;
 import com.wikijump.WikiKey;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
@@ -21,6 +23,10 @@ public class WikiJumpFabricClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_K,
                 "key.categories.wikijump"
         ));
+
+        // Same command tree as the other loaders; only the source type differs.
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                dispatcher.register(WikiJumpCommands.build()));
 
         // Key events are per-screen: hook every screen as it initializes.
         ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) ->

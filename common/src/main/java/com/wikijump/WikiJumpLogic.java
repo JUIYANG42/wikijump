@@ -172,6 +172,19 @@ public final class WikiJumpLogic {
                 "message.wikijump.opening");
     }
 
+    /**
+     * Opens the configured wiki page for an arbitrary search term. Used by the
+     * {@code /wikijump <name>} command, where there is no registry target to
+     * take a translation key from.
+     */
+    public static void openByName(String name) {
+        if (name == null || name.isBlank()) {
+            return;
+        }
+        String trimmed = name.trim();
+        openUrl(WikiJumpConfig.get().urlFor(trimmed), trimmed, "message.wikijump.opening");
+    }
+
     /** Opens the URL in the system browser, with an action-bar message on success. */
     private static void openUrl(String url, String pageTitle, String messageKey) {
         try {

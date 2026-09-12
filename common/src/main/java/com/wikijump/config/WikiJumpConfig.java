@@ -89,8 +89,8 @@ public class WikiJumpConfig {
         }
     }
 
-    /** Drops invalid values back to defaults. */
-    private void normalize() {
+    /** Drops invalid values back to defaults. Called on load and by the settings screen. */
+    public void normalize() {
         if (WikiSite.byId(wikiSite) == null && !isCustom()) {
             wikiSite = "auto";
         }

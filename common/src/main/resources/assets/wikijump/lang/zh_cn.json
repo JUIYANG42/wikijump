@@ -5,5 +5,17 @@
     "message.wikijump.opening": "正在打开 Wiki 页面：%s",
     "message.wikijump.searching": "正在搜索：%s",
     "message.wikijump.no_target": "没有可查询的方块、生物或物品。",
-    "message.wikijump.open_failed": "打开 Wiki 页面失败。"
+    "message.wikijump.open_failed": "打开 Wiki 页面失败。",
+
+    "wikijump.config.title": "WikiJump 设置",
+    "wikijump.config.site": "Wiki 站点",
+    "wikijump.config.site.auto": "跟随游戏语言",
+    "wikijump.config.site.custom": "自定义 URL",
+    "wikijump.config.custom_url": "自定义 URL 模板",
+    "wikijump.config.modded_chinese_url": "模组·中文名搜索",
+    "wikijump.config.modded_foreign_url": "模组·其他语言搜索",
+    "wikijump.config.fallback_main_hand": "无目标时回退到主手物品",
+    "wikijump.config.show_message": "打开页面时显示提示",
+    "wikijump.config.done": "完成",
+    "wikijump.config.hint": "{name} 会替换为查询名称；留空即禁用该项"
 }

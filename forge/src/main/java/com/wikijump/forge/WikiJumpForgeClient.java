@@ -2,9 +2,11 @@ package com.wikijump.forge;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.wikijump.WikiJump;
+import com.wikijump.WikiJumpCommands;
 import com.wikijump.WikiJumpLogic;
 import com.wikijump.WikiKey;
 import net.minecraft.client.KeyMapping;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -37,6 +39,11 @@ public class WikiJumpForgeClient {
             );
             event.register(WikiKey.openWiki);
         }
+    }
+
+    @SubscribeEvent
+    public void onClientCommands(RegisterClientCommandsEvent event) {
+        event.getDispatcher().register(WikiJumpCommands.build());
     }
 
     @SubscribeEvent

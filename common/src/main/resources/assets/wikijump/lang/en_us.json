@@ -5,5 +5,17 @@
     "message.wikijump.opening": "Opening wiki page: %s",
     "message.wikijump.searching": "Searching: %s",
     "message.wikijump.no_target": "No block, entity or item to look up.",
-    "message.wikijump.open_failed": "Failed to open the wiki page."
+    "message.wikijump.open_failed": "Failed to open the wiki page.",
+
+    "wikijump.config.title": "WikiJump Settings",
+    "wikijump.config.site": "Wiki site",
+    "wikijump.config.site.auto": "Follow game language",
+    "wikijump.config.site.custom": "Custom URL",
+    "wikijump.config.custom_url": "Custom URL template",
+    "wikijump.config.modded_chinese_url": "Modded, Chinese name",
+    "wikijump.config.modded_foreign_url": "Modded, other languages",
+    "wikijump.config.fallback_main_hand": "Fall back to the main-hand item",
+    "wikijump.config.show_message": "Show a message when opening",
+    "wikijump.config.done": "Done",
+    "wikijump.config.hint": "{name} is replaced by the name you look up; leave a field empty to disable it"
 }
