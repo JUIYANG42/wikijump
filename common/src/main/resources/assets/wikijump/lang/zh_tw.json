@@ -17,6 +17,7 @@
     "wikijump.config.modded_chinese_url": "模組·中文名搜尋",
     "wikijump.config.modded_foreign_url": "模組·其他語言搜尋",
     "wikijump.config.fallback_main_hand": "無目標時退回主手物品",
+    "wikijump.config.overlay_items": "相容 JEI / EMI / REI 物品列表",
     "wikijump.config.show_message": "開啟頁面時顯示提示",
     "wikijump.config.show_tooltip_hint": "在物品提示中顯示按鍵提醒",
     "wikijump.config.done": "完成",

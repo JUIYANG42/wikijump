@@ -19,6 +19,7 @@ Press one key to open the Minecraft Wiki page of the block, entity, or item you 
 - **In-game settings screen**: type `/wikijump` to change every option, with changes applied immediately — no JSON editing required
 - **Command lookup**: `/wikijump <name>` looks up any name directly, without needing to hold an item or aim at a block
 - **Key hint in tooltips**: the last line of every item tooltip names the key — and it follows the key you actually bound, so a rebind updates it automatically. Turn it off in the settings screen if you'd rather not have the extra line
+- **JEI / EMI / REI compatible**: items in a viewer's item list or bookmark overlay can be looked up directly, without picking them up first. It takes **no dependency on any of the three APIs** — it rides the item-tooltip pipeline all of them share, so other overlays that draw item tooltips work as well
 
 ## Lookup Rules
 
@@ -27,6 +28,7 @@ Press one key to open the Minecraft Wiki page of the block, entity, or item you 
 | Vanilla block / item / mob | The wiki configured via `wikiSite` (`auto`: Chinese game → zh.minecraft.wiki, else minecraft.wiki) |
 | Modded content + Chinese display name (translated) | mcmod.cn search (`moddedChineseUrl`) |
 | Modded content + non-Chinese display name (untranslated) | FTB Wiki search (`moddedForeignUrl`) |
+| Items in a JEI / EMI / REI item list or bookmark overlay | Exactly the item rules above (it is simply "the item under the cursor") |
 | When `wikiSite` is `custom:` | Everything uses `customUrl`, including modded content |
 | Holding `Shift` while pressing the key (`Shift+K` by default) | Forced lookup with the **in-game English name**: modded content → `moddedForeignUrl`; vanilla → English counterpart of the configured wiki; `custom:` → `customUrl` |
 
@@ -55,7 +57,7 @@ Type `/wikijump` to open it. Everything is adjustable there:
 
 - **Wiki site**: follow game language / minecraft.wiki / zh.minecraft.wiki / both Fandom wikis / custom URL
 - **Three URL templates**: custom, modded Chinese-name search, modded other-language search
-- **Three switches**: fall back to the main-hand item, show a message when opening, show the key hint in item tooltips
+- **Four switches**: fall back to the main-hand item, also work on JEI / EMI / REI item lists, show a message when opening, show the key hint in item tooltips
 
 Changes take effect **immediately** and are written to `config/wikijump.json` when the screen closes. The custom-template box is greyed out unless the custom site is selected.
 
@@ -73,7 +75,8 @@ Location: `config/wikijump.json` (auto-generated on first launch)
   "moddedForeignUrl": "https://ftb.fandom.com/wiki/Special:Search?query={name}",
   "fallbackToMainHand": true,
   "showOpenMessage": true,
-  "showTooltipHint": true
+  "showTooltipHint": true,
+  "overlayItemLookup": true
 }
 ```
 
@@ -86,6 +89,7 @@ Location: `config/wikijump.json` (auto-generated on first launch)
 | `fallbackToMainHand` | Whether to look up the main-hand item when the crosshair has no target |
 | `showOpenMessage` | Whether to show an action-bar message when a page opens |
 | `showTooltipHint` | Whether to append the key reminder to item tooltips (the text follows your actual keybinding) |
+| `overlayItemLookup` | Whether the key also works on third-party screens such as the JEI / EMI / REI item lists (disable to use vanilla item slots only) |
 
 Tip: mcmod.cn also indexes English keywords — if Fandom/FTB Wiki is unreachable in your region, point `moddedForeignUrl` at `https://search.mcmod.cn/s?key={name}` too.
 
@@ -131,7 +135,8 @@ All three loaders use official Mojang mappings, so the shared code compiles iden
 ## Known Limitations
 
 - Only vanilla content (or content with wiki pages) resolves directly; modded targets open a **search** page rather than a direct article
-- Does not intercept hovered items in JEI/EMI or other third-party screens
+- JEI / EMI / REI support works by following the item tooltip: only screens that **render item tooltips** can be queried, a fully hand-drawn list that draws none will not respond
+- After clicking in a viewer, move the cursor back onto an item (a click clears the hover record — which is exactly what keeps typing in a viewer's search box from firing a lookup)
 - A few wiki page titles differ from the in-game display name and land on a search/missing page
 - The settings screen is a hand-rolled vanilla `Screen`; no config library such as Cloth Config is pulled in, keeping the mod dependency-free
 - No "mod id → Modrinth project page" shortcut: a registry namespace matches the Modrinth project slug only about 60% of the time (`twilightforest` vs `twilight-forest`, `cloth_config` vs `cloth-config`, `tconstruct` vs `tinkers-construct`), so building the URL directly would 404 constantly — modded content keeps using keyword search

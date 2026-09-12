@@ -19,6 +19,7 @@
 - **游戏内设置界面**：输入 `/wikijump` 即可调整全部选项，改完即时生效，不必手改 JSON
 - **命令查询**：`/wikijump <名称>` 直接查任意词条，不需要先拿着物品或对着方块
 - **按键提示**：每个物品的提示（tooltip）最后一行会显示按键提醒，而且**跟着你实际绑定的按键走**（改键后自动更新），不必去翻文档才知道有这个功能；觉得占地方可在设置里关掉
+- **兼容 JEI / EMI / REI**：查看器物品列表、书签栏里的物品也能直接按键查询，不用先把它拿到手里。实现上**不依赖任何一家的 API**，而是复用三家共用的物品提示渲染管线，因此连其他会画物品提示的界面（各类背包/查看器模组）也一并支持
 
 ## 查询规则
 
@@ -27,6 +28,7 @@
 | 原版方块 / 物品 / 生物 | `wikiSite` 配置的 Wiki（`auto`：中文 → zh.minecraft.wiki，其他 → minecraft.wiki） |
 | 模组内容 + 中文显示名（有中文翻译） | mcmod.cn 搜索（`moddedChineseUrl`） |
 | 模组内容 + 非中文显示名（无中文翻译） | FTB Wiki 搜索（`moddedForeignUrl`） |
+| JEI / EMI / REI 物品列表、书签栏中的物品 | 与上面的物品规则完全一致（等于「鼠标悬停的物品」） |
 | `wikiSite` 设为 `custom:` 时 | 全部使用 `customUrl`（包括模组内容） |
 | 按住 `Shift` 按键（默认 `Shift+K`） | 强制用**游戏内英文名**搜索外网：模组内容 → `moddedForeignUrl`；原版 → 所配置 Wiki 的英文对应站；`custom:` → `customUrl` |
 
@@ -55,7 +57,7 @@
 
 - **Wiki 站点**：跟随游戏语言 / minecraft.wiki / zh.minecraft.wiki / 两个 Fandom 站 / 自定义 URL
 - **三个 URL 模板**：自定义、模组·中文名搜索、模组·其他语言搜索
-- **三个开关**：无目标时回退主手物品、打开页面时显示提示、物品提示中显示按键提醒
+- **四个开关**：无目标时回退主手物品、兼容 JEI / EMI / REI 物品列表、打开页面时显示提示、物品提示中显示按键提醒
 
 界面里的改动**立即生效**，关闭时自动写入 `config/wikijump.json`。未选中「自定义 URL」站点时，自定义模板输入框会置灰。
 
@@ -73,7 +75,8 @@
   "moddedForeignUrl": "https://ftb.fandom.com/wiki/Special:Search?query={name}",
   "fallbackToMainHand": true,
   "showOpenMessage": true,
-  "showTooltipHint": true
+  "showTooltipHint": true,
+  "overlayItemLookup": true
 }
 ```
 
@@ -86,6 +89,7 @@
 | `fallbackToMainHand` | 准星无目标时是否查询主手物品 |
 | `showOpenMessage` | 打开页面时是否在动作栏显示提示 |
 | `showTooltipHint` | 是否在物品提示的最后一行显示按键提醒（内容跟随你的实际按键绑定） |
+| `overlayItemLookup` | 是否让按键作用在 JEI / EMI / REI 的物品列表等第三方界面上（关闭后只在原版界面的物品槽上生效） |
 
 提示：mcmod.cn 也支持英文关键词搜索，若你所在地区无法访问 Fandom/FTB Wiki，可把 `moddedForeignUrl` 也改为 `https://search.mcmod.cn/s?key={name}`。
 
@@ -131,7 +135,8 @@ wikijump/
 ## 已知限制
 
 - 原版内容直达词条页面；**模组内容打开的是搜索页**而非直接词条
-- 不拦截 JEI/EMI 等第三方界面的物品悬停区域
+- JEI / EMI / REI 的兼容是"跟随物品提示"实现的：只有**会绘制物品提示**的界面才能查询，完全不画提示的自绘列表不会生效
+- 在查看器里点击鼠标后，需要把鼠标重新移到物品上（点击会清空悬停记录——这正是为了避免你在查看器搜索框里打字时误触发查询）
 - 极少数页面标题与游戏内显示名不一致时会落到搜索/不存在页面
 - 设置界面是自绘的 vanilla `Screen`，故意不引入 Cloth Config 等第三方配置库，以保持零依赖
 - 暂不提供「mod id → Modrinth 项目页」的精确跳转：注册表 namespace 与 Modrinth 的项目 slug 只有约六成一致（`twilightforest` 对应 `twilight-forest`、`cloth_config` 对应 `cloth-config`、`tconstruct` 对应 `tinkers-construct`），直接拼 URL 会大量 404，因此模组内容仍走关键词搜索

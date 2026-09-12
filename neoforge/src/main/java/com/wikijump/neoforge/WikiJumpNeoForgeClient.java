@@ -1,6 +1,7 @@
 package com.wikijump.neoforge;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.wikijump.HoverTracker;
 import com.wikijump.TooltipHint;
 import com.wikijump.WikiJump;
 import com.wikijump.WikiJumpCommands;
@@ -48,6 +49,9 @@ public class WikiJumpNeoForgeClient {
 
     @SubscribeEvent
     public void onItemTooltip(ItemTooltipEvent event) {
+        // Also feeds the hover tracker, which is what lets the key work on the
+        // item lists of JEI/EMI/REI: they draw their own tooltips.
+        HoverTracker.capture(event.getItemStack());
         TooltipHint.append(event.getToolTip());
     }
 
@@ -56,6 +60,13 @@ public class WikiJumpNeoForgeClient {
         if (WikiJumpLogic.onScreenKey(event.getScreen(), event.getKeyCode(), event.getScanCode())) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public void onMousePressed(ScreenEvent.MouseButtonPressed.Pre event) {
+        // A click moves the cursor on to something else (a viewer's search box,
+        // for instance) without a tooltip being drawn for it.
+        HoverTracker.clear();
     }
 
     @SubscribeEvent

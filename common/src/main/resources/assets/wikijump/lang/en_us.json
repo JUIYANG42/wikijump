@@ -17,6 +17,7 @@
     "wikijump.config.modded_chinese_url": "Modded, Chinese name",
     "wikijump.config.modded_foreign_url": "Modded, other languages",
     "wikijump.config.fallback_main_hand": "Fall back to the main-hand item",
+    "wikijump.config.overlay_items": "Also work on JEI / EMI / REI item lists",
     "wikijump.config.show_message": "Show a message when opening",
     "wikijump.config.show_tooltip_hint": "Show the key hint in item tooltips",
     "wikijump.config.done": "Done",

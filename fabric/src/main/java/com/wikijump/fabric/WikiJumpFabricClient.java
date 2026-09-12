@@ -1,5 +1,6 @@
 package com.wikijump.fabric;
 
+import com.wikijump.HoverTracker;
 import com.wikijump.TooltipHint;
 import com.wikijump.WikiJump;
 import com.wikijump.WikiJumpCommands;
@@ -12,6 +13,7 @@ import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.Screen;
 import org.lwjgl.glfw.GLFW;
@@ -31,11 +33,21 @@ public class WikiJumpFabricClient implements ClientModInitializer {
                 dispatcher.register(WikiJumpCommands.build()));
 
         // Key reminder in item tooltips; the shared code decides whether it is on.
-        ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TooltipHint.append(lines));
+        // The same hook feeds the hover tracker, which is what lets the key work
+        // on the item lists of JEI/EMI/REI: they draw their own tooltips.
+        ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> {
+            HoverTracker.capture(stack);
+            TooltipHint.append(lines);
+        });
 
         // Key events are per-screen: hook every screen as it initializes.
-        ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) ->
-                registerScreenKeyHandler(screen));
+        ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+            registerScreenKeyHandler(screen);
+            ScreenMouseEvents.beforeMouseClick(screen)
+                    // A click moves the cursor on to something else (a viewer's
+                    // search box, for instance) without a tooltip drawn for it.
+                    .register((scr, mouseX, mouseY, button) -> HoverTracker.clear());
+        });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (WikiKey.openWiki.consumeClick()) {

@@ -6,6 +6,8 @@ import com.wikijump.wiki.WikiSite;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Loader-independent core: resolves what the player is looking at (hovered
- * slot, crosshair block/entity, or main-hand fallback) and opens the matching
+ * item, crosshair block/entity, or main-hand fallback) and opens the matching
  * wiki page in the system browser.
  *
  * Lookup rules:
@@ -35,6 +37,10 @@ import java.nio.charset.StandardCharsets;
  * - a "custom:" wikiSite template overrides everything;
  * - holding Shift while pressing the key (Shift+K by default) looks the target
  *   up on the foreign wiki using its in-game English (en_us) name instead.
+ *
+ * What is under the cursor is taken from {@link HoverTracker} — which covers
+ * the item lists of JEI, EMI and REI, plus any other overlay that draws its own
+ * item tooltips — and from the vanilla hovered slot as a fallback.
  */
 public final class WikiJumpLogic {
 
@@ -44,23 +50,24 @@ public final class WikiJumpLogic {
     /**
      * Handles a key press while a screen is open. Returns true if the key was
      * consumed (the caller should then cancel the underlying event).
+     *
+     * Any screen is accepted, not just container screens: with JEI, EMI or REI
+     * installed, their item lists and bookmarks are drawn on every screen, and
+     * those are precisely the places where a lookup is most useful.
      */
     public static boolean onScreenKey(Screen screen, int keyCode, int scanCode) {
-        if (!(screen instanceof AbstractContainerScreen<?> containerScreen)) {
+        if (screen == null || WikiKey.openWiki == null
+                || !WikiKey.openWiki.matches(keyCode, scanCode)) {
             return false;
         }
         // Don't hijack typing in search boxes and other text fields.
-        if (screen.getFocused() != null && screen.getFocused().keyPressed(keyCode, scanCode, 0)) {
+        if (isTyping(screen, keyCode, scanCode)) {
             return false;
         }
-        if (WikiKey.openWiki == null || !WikiKey.openWiki.matches(keyCode, scanCode)) {
+        ItemStack stack = hoveredItem(screen);
+        if (stack.isEmpty()) {
             return false;
         }
-        Slot hovered = containerScreen.hoveredSlot;
-        if (hovered == null || !hovered.hasItem()) {
-            return false;
-        }
-        ItemStack stack = hovered.getItem();
         String title = stack.getHoverName().getString();
         if (title.isEmpty()) {
             return false;
@@ -69,6 +76,44 @@ public final class WikiJumpLogic {
                 namespaceOf(BuiltInRegistries.ITEM.getKey(stack.getItem())),
                 Screen.hasShiftDown());
         return true;
+    }
+
+    /**
+     * The item under the cursor: an overlay capture first (JEI/EMI/REI item
+     * lists and anything else drawing its own tooltips), a vanilla slot second.
+     */
+    private static ItemStack hoveredItem(Screen screen) {
+        if (WikiJumpConfig.get().overlayItemLookup) {
+            ItemStack tracked = HoverTracker.current();
+            if (!tracked.isEmpty()) {
+                return tracked;
+            }
+        }
+        if (screen instanceof AbstractContainerScreen<?> containerScreen) {
+            Slot slot = containerScreen.hoveredSlot;
+            if (slot != null && slot.hasItem()) {
+                return slot.getItem();
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /**
+     * True when the key belongs to the focused text field instead of to us.
+     * Recipe viewers focus their search box through the regular widget system,
+     * so an {@link EditBox} check covers them without knowing which viewer it
+     * is; the {@code keyPressed} probe catches the odd custom field that does
+     * not extend it.
+     */
+    private static boolean isTyping(Screen screen, int keyCode, int scanCode) {
+        GuiEventListener focused = screen.getFocused();
+        if (focused == null) {
+            return false;
+        }
+        if (focused instanceof EditBox box && box.canConsumeInput()) {
+            return true;
+        }
+        return focused.keyPressed(keyCode, scanCode, 0);
     }
 
     /**

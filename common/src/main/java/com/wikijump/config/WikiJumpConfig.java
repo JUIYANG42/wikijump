@@ -56,6 +56,15 @@ public class WikiJumpConfig {
      */
     public boolean showTooltipHint = true;
 
+    /**
+     * Let the key work on the item lists of JEI, EMI and REI as well, instead
+     * of only on the slots of the vanilla screen. The viewer panels draw their
+     * own items, so the hovered stack is taken from the tooltip pipeline they
+     * all share (see {@code HoverTracker}); switching this off restores the
+     * plain hovered-slot behaviour.
+     */
+    public boolean overlayItemLookup = true;
+
     private static WikiJumpConfig instance;
 
     public static WikiJumpConfig get() {

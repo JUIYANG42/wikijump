@@ -41,7 +41,7 @@ public class WikiJumpConfigScreen extends Screen {
     private static final int ROW_GAP = 2;
 
     /** Number of stacked control rows, used to centre the whole panel. */
-    private static final int ROWS = 7;
+    private static final int ROWS = 8;
 
     private final Screen parent;
 
@@ -64,7 +64,8 @@ public class WikiJumpConfigScreen extends Screen {
         left = (width - PANEL_WIDTH) / 2;
         int controlX = left + LABEL_WIDTH;
         int panelHeight = ROWS * (ROW_HEIGHT + ROW_GAP) + ROW_HEIGHT;
-        int y = Math.max(30, (height - panelHeight) / 2);
+        // 24 rather than 30 so the hint line still fits a 320x240 GUI scale.
+        int y = Math.max(24, (height - panelHeight) / 2);
         titleY = y - 20;
 
         // 1. Which wiki site vanilla content goes to.
@@ -93,12 +94,20 @@ public class WikiJumpConfigScreen extends Screen {
                 "wikijump.config.modded_foreign_url", value -> cfg.moddedForeignUrl = value);
         y += ROW_HEIGHT + ROW_GAP;
 
-        // 5-6. Behaviour switches.
+        // 5-8. Behaviour switches.
         addRenderableWidget(Checkbox.builder(Component.translatable("wikijump.config.fallback_main_hand"), font)
                 .pos(controlX, y)
                 .maxWidth(CONTROL_WIDTH)
                 .selected(cfg.fallbackToMainHand)
                 .onValueChange((box, value) -> cfg.fallbackToMainHand = value)
+                .build());
+        y += ROW_HEIGHT + ROW_GAP;
+
+        addRenderableWidget(Checkbox.builder(Component.translatable("wikijump.config.overlay_items"), font)
+                .pos(controlX, y)
+                .maxWidth(CONTROL_WIDTH)
+                .selected(cfg.overlayItemLookup)
+                .onValueChange((box, value) -> cfg.overlayItemLookup = value)
                 .build());
         y += ROW_HEIGHT + ROW_GAP;
 
