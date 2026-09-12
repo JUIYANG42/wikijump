@@ -70,16 +70,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.ref.outputs.tag }}
         run: |
+          title="WikiJump ${TAG#v}"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/*.jar --clobber
+            # Re-pushing a tag rebuilds and republishes; refresh the body too,
+            # so a corrected tag annotation is not left stale on the page.
+            if [ -s release-notes.md ]; then
+              gh release edit "$TAG" --title "$title" --notes-file release-notes.md
+            fi
           elif [ -s release-notes.md ]; then
             # The tag annotation is written by hand, so it already describes
             # what changed; do not bury it under a generated changelog.
             gh release create "$TAG" dist/*.jar \
-              --title "WikiJump ${TAG#v}" \
+              --title "$title" \
               --notes-file release-notes.md
           else
             gh release create "$TAG" dist/*.jar \
-              --title "WikiJump ${TAG#v}" \
+              --title "$title" \
               --generate-notes
           fi
