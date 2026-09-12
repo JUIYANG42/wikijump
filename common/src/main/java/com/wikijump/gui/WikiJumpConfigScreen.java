@@ -38,7 +38,10 @@ public class WikiJumpConfigScreen extends Screen {
     private static final int LABEL_WIDTH = 132;
     private static final int CONTROL_WIDTH = PANEL_WIDTH - LABEL_WIDTH;
     private static final int ROW_HEIGHT = 20;
-    private static final int ROW_GAP = 4;
+    private static final int ROW_GAP = 2;
+
+    /** Number of stacked control rows, used to centre the whole panel. */
+    private static final int ROWS = 7;
 
     private final Screen parent;
 
@@ -60,8 +63,9 @@ public class WikiJumpConfigScreen extends Screen {
         WikiJumpConfig cfg = WikiJumpConfig.get();
         left = (width - PANEL_WIDTH) / 2;
         int controlX = left + LABEL_WIDTH;
-        int y = Math.max(34, (height - 176) / 2);
-        titleY = y - 24;
+        int panelHeight = ROWS * (ROW_HEIGHT + ROW_GAP) + ROW_HEIGHT;
+        int y = Math.max(30, (height - panelHeight) / 2);
+        titleY = y - 20;
 
         // 1. Which wiki site vanilla content goes to.
         String initialSite = SITES.contains(cfg.wikiSite) ? cfg.wikiSite : "auto";
@@ -104,7 +108,15 @@ public class WikiJumpConfigScreen extends Screen {
                 .selected(cfg.showOpenMessage)
                 .onValueChange((box, value) -> cfg.showOpenMessage = value)
                 .build());
-        y += ROW_HEIGHT + 14;
+        y += ROW_HEIGHT + ROW_GAP;
+
+        addRenderableWidget(Checkbox.builder(Component.translatable("wikijump.config.show_tooltip_hint"), font)
+                .pos(controlX, y)
+                .maxWidth(CONTROL_WIDTH)
+                .selected(cfg.showTooltipHint)
+                .onValueChange((box, value) -> cfg.showTooltipHint = value)
+                .build());
+        y += ROW_HEIGHT + 6;
 
         addRenderableWidget(Button.builder(Component.translatable("wikijump.config.done"), button -> onClose())
                 .bounds(width / 2 - 60, y, 120, ROW_HEIGHT)

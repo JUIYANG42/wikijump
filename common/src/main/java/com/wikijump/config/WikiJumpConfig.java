@@ -48,6 +48,14 @@ public class WikiJumpConfig {
     /** Show an action-bar message when the wiki page is opened. */
     public boolean showOpenMessage = true;
 
+    /**
+     * Append a "press K to open the wiki" line to item tooltips. This is what
+     * makes the mod discoverable, but it does add a line to every tooltip, so
+     * it can be switched off here or from the in-game settings screen. The
+     * line names the player's own keybinding.
+     */
+    public boolean showTooltipHint = true;
+
     private static WikiJumpConfig instance;
 
     public static WikiJumpConfig get() {

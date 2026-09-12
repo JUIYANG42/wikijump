@@ -18,6 +18,7 @@
 - 原版内容默认 Wiki 站点自动跟随游戏语言：中文 → `zh.minecraft.wiki`，其他语言 → `minecraft.wiki`
 - **游戏内设置界面**：输入 `/wikijump` 即可调整全部选项，改完即时生效，不必手改 JSON
 - **命令查询**：`/wikijump <名称>` 直接查任意词条，不需要先拿着物品或对着方块
+- **按键提示**：每个物品的提示（tooltip）最后一行会显示按键提醒，而且**跟着你实际绑定的按键走**（改键后自动更新），不必去翻文档才知道有这个功能；觉得占地方可在设置里关掉
 
 ## 查询规则
 
@@ -54,7 +55,7 @@
 
 - **Wiki 站点**：跟随游戏语言 / minecraft.wiki / zh.minecraft.wiki / 两个 Fandom 站 / 自定义 URL
 - **三个 URL 模板**：自定义、模组·中文名搜索、模组·其他语言搜索
-- **两个开关**：无目标时回退主手物品、打开页面时显示提示
+- **三个开关**：无目标时回退主手物品、打开页面时显示提示、物品提示中显示按键提醒
 
 界面里的改动**立即生效**，关闭时自动写入 `config/wikijump.json`。未选中「自定义 URL」站点时，自定义模板输入框会置灰。
 
@@ -71,7 +72,8 @@
   "moddedChineseUrl": "https://search.mcmod.cn/s?key={name}",
   "moddedForeignUrl": "https://ftb.fandom.com/wiki/Special:Search?query={name}",
   "fallbackToMainHand": true,
-  "showOpenMessage": true
+  "showOpenMessage": true,
+  "showTooltipHint": true
 }
 ```
 
@@ -83,6 +85,7 @@
 | `moddedForeignUrl` | 模组内容（无中文翻译）的搜索 URL 模板，默认 FTB Wiki；留空禁用（改用 `wikiSite`） |
 | `fallbackToMainHand` | 准星无目标时是否查询主手物品 |
 | `showOpenMessage` | 打开页面时是否在动作栏显示提示 |
+| `showTooltipHint` | 是否在物品提示的最后一行显示按键提醒（内容跟随你的实际按键绑定） |
 
 提示：mcmod.cn 也支持英文关键词搜索，若你所在地区无法访问 Fandom/FTB Wiki，可把 `moddedForeignUrl` 也改为 `https://search.mcmod.cn/s?key={name}`。
 

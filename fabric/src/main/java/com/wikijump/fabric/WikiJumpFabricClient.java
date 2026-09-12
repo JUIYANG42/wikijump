@@ -1,5 +1,6 @@
 package com.wikijump.fabric;
 
+import com.wikijump.TooltipHint;
 import com.wikijump.WikiJump;
 import com.wikijump.WikiJumpCommands;
 import com.wikijump.WikiJumpLogic;
@@ -7,6 +8,7 @@ import com.wikijump.WikiKey;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
@@ -27,6 +29,9 @@ public class WikiJumpFabricClient implements ClientModInitializer {
         // Same command tree as the other loaders; only the source type differs.
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
                 dispatcher.register(WikiJumpCommands.build()));
+
+        // Key reminder in item tooltips; the shared code decides whether it is on.
+        ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TooltipHint.append(lines));
 
         // Key events are per-screen: hook every screen as it initializes.
         ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) ->

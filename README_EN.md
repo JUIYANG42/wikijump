@@ -18,6 +18,7 @@ Press one key to open the Minecraft Wiki page of the block, entity, or item you 
 - Vanilla content defaults to the wiki matching the game language: Chinese → `zh.minecraft.wiki`, everything else → `minecraft.wiki`
 - **In-game settings screen**: type `/wikijump` to change every option, with changes applied immediately — no JSON editing required
 - **Command lookup**: `/wikijump <name>` looks up any name directly, without needing to hold an item or aim at a block
+- **Key hint in tooltips**: the last line of every item tooltip names the key — and it follows the key you actually bound, so a rebind updates it automatically. Turn it off in the settings screen if you'd rather not have the extra line
 
 ## Lookup Rules
 
@@ -54,7 +55,7 @@ Type `/wikijump` to open it. Everything is adjustable there:
 
 - **Wiki site**: follow game language / minecraft.wiki / zh.minecraft.wiki / both Fandom wikis / custom URL
 - **Three URL templates**: custom, modded Chinese-name search, modded other-language search
-- **Two switches**: fall back to the main-hand item, show a message when opening
+- **Three switches**: fall back to the main-hand item, show a message when opening, show the key hint in item tooltips
 
 Changes take effect **immediately** and are written to `config/wikijump.json` when the screen closes. The custom-template box is greyed out unless the custom site is selected.
 
@@ -71,7 +72,8 @@ Location: `config/wikijump.json` (auto-generated on first launch)
   "moddedChineseUrl": "https://search.mcmod.cn/s?key={name}",
   "moddedForeignUrl": "https://ftb.fandom.com/wiki/Special:Search?query={name}",
   "fallbackToMainHand": true,
-  "showOpenMessage": true
+  "showOpenMessage": true,
+  "showTooltipHint": true
 }
 ```
 
@@ -83,6 +85,7 @@ Location: `config/wikijump.json` (auto-generated on first launch)
 | `moddedForeignUrl` | Search URL template for modded content without a Chinese translation; defaults to the FTB Wiki. Empty disables it (falls back to `wikiSite`) |
 | `fallbackToMainHand` | Whether to look up the main-hand item when the crosshair has no target |
 | `showOpenMessage` | Whether to show an action-bar message when a page opens |
+| `showTooltipHint` | Whether to append the key reminder to item tooltips (the text follows your actual keybinding) |
 
 Tip: mcmod.cn also indexes English keywords — if Fandom/FTB Wiki is unreachable in your region, point `moddedForeignUrl` at `https://search.mcmod.cn/s?key={name}` too.
 

@@ -26,6 +26,23 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.ref.outputs.tag }}
+          # The release body is the tag annotation, so the tag object has to be
+          # in the clone — the default shallow, tag-less checkout would miss it.
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Read the release notes from the tag annotation
+        env:
+          TAG: ${{ steps.ref.outputs.tag }}
+        run: |
+          git tag -l --format='%(contents)' "$TAG" > release-notes.md
+          if [ -s release-notes.md ]; then
+            echo "Using the annotation on $TAG as the release body:"
+            cat release-notes.md
+          else
+            echo "$TAG has no annotation; falling back to generated notes"
+            rm -f release-notes.md
+          fi
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -55,8 +72,14 @@ jobs:
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/*.jar --clobber
+          elif [ -s release-notes.md ]; then
+            # The tag annotation is written by hand, so it already describes
+            # what changed; do not bury it under a generated changelog.
+            gh release create "$TAG" dist/*.jar \
+              --title "WikiJump ${TAG#v}" \
+              --notes-file release-notes.md
           else
             gh release create "$TAG" dist/*.jar \
-              --title "WikiJump $TAG" \
+              --title "WikiJump ${TAG#v}" \
               --generate-notes
           fi

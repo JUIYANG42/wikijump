@@ -1,6 +1,7 @@
 package com.wikijump.forge;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.wikijump.TooltipHint;
 import com.wikijump.WikiJump;
 import com.wikijump.WikiJumpCommands;
 import com.wikijump.WikiJumpLogic;
@@ -11,6 +12,7 @@ import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
@@ -44,6 +46,11 @@ public class WikiJumpForgeClient {
     @SubscribeEvent
     public void onClientCommands(RegisterClientCommandsEvent event) {
         event.getDispatcher().register(WikiJumpCommands.build());
+    }
+
+    @SubscribeEvent
+    public void onItemTooltip(ItemTooltipEvent event) {
+        TooltipHint.append(event.getToolTip());
     }
 
     @SubscribeEvent

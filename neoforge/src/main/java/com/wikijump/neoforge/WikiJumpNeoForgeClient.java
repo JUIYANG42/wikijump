@@ -1,6 +1,7 @@
 package com.wikijump.neoforge;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.wikijump.TooltipHint;
 import com.wikijump.WikiJump;
 import com.wikijump.WikiJumpCommands;
 import com.wikijump.WikiJumpLogic;
@@ -15,6 +16,7 @@ import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import org.lwjgl.glfw.GLFW;
 
 @Mod(value = WikiJump.MOD_ID, dist = Dist.CLIENT)
@@ -42,6 +44,11 @@ public class WikiJumpNeoForgeClient {
     @SubscribeEvent
     public void onClientCommands(RegisterClientCommandsEvent event) {
         event.getDispatcher().register(WikiJumpCommands.build());
+    }
+
+    @SubscribeEvent
+    public void onItemTooltip(ItemTooltipEvent event) {
+        TooltipHint.append(event.getToolTip());
     }
 
     @SubscribeEvent

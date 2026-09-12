@@ -7,6 +7,8 @@
     "message.wikijump.no_target": "沒有可查詢的方塊、生物或物品。",
     "message.wikijump.open_failed": "開啟 Wiki 頁面失敗。",
 
+    "wikijump.tooltip.hint": "%s 開啟 Wiki · Shift+%s 英文外網搜尋",
+
     "wikijump.config.title": "WikiJump 設定",
     "wikijump.config.site": "Wiki 站點",
     "wikijump.config.site.auto": "跟隨遊戲語言",
@@ -16,6 +18,7 @@
     "wikijump.config.modded_foreign_url": "模組·其他語言搜尋",
     "wikijump.config.fallback_main_hand": "無目標時退回主手物品",
     "wikijump.config.show_message": "開啟頁面時顯示提示",
+    "wikijump.config.show_tooltip_hint": "在物品提示中顯示按鍵提醒",
     "wikijump.config.done": "完成",
     "wikijump.config.hint": "{name} 會替換為查詢名稱；留空即停用該項"
 }
