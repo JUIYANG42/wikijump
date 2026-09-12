@@ -13,7 +13,9 @@ file = "META-INF/wikijump-common.cfg"
 [[dependencies.${mod_id}]]
 modId = "neoforge"
 type = "required"
-versionRange = "[${neoforge_version},)"
+# Lower bound of the supported NeoForge range, not the compile version: the
+# loader refuses to start a mod whose range excludes the running NeoForge.
+versionRange = "[${neoforge_min_version},)"
 ordering = "NONE"
 side = "CLIENT"
 [[dependencies.${mod_id}]]

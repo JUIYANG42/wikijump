@@ -5,6 +5,21 @@ plugins {
 
 neoForge {
     version = neoforge_version
+    // Version choice matters here. neoforge_version is the build we compile
+    // against; neoforge_min_version is the lower bound advertised in
+    // neoforge.mods.toml. They are separate because the declared range must
+    // never sit above the compile version — the loader rejects a mod whose
+    // range excludes the NeoForge it is running on, so declaring
+    // "[21.1.250,)" while compiling against 21.1.249 would make the mod
+    // unloadable on 21.1.249.
+    //
+    // Staying within a single 21.1.x line is safe: 21.1.x always means
+    // Minecraft 1.21.1 (the moddev plugin derives the MC version from the
+    // first two NeoForge version segments, so it reuses the same NeoForm), and
+    // the patch releases differ in tiny, unrelated corners — 21.1.249 vs
+    // 21.1.250 touch one sound data class and nothing else, none of the events
+    // used here.
+    //
     // Enable AccessTransformers from the shared common module (Mojmap names).
     // The AT opens AbstractContainerScreen#hoveredSlot for hover detection in
     // container screens.
