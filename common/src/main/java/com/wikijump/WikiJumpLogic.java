@@ -1,18 +1,17 @@
 package com.wikijump;
 
+import com.wikijump.compat.Generation;
+import com.wikijump.compat.KeyPress;
 import com.wikijump.config.WikiJumpConfig;
 import com.wikijump.wiki.EnglishNames;
 import com.wikijump.wiki.WikiSite;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -29,6 +28,15 @@ import java.nio.charset.StandardCharsets;
  * Loader-independent core: resolves what the player is looking at (hovered
  * item, crosshair block/entity, or main-hand fallback) and opens the matching
  * wiki page in the system browser.
+ *
+ * <p>Also generation-independent, despite 1.21.1 and 26.1 having renamed a good
+ * deal of what this class touches: {@code Util} moved package,
+ * {@code ResourceLocation} became {@code Identifier}, key input became a record,
+ * {@code ItemStack} stopped answering {@code getDescriptionId()},
+ * {@code Screen#hasShiftDown()} disappeared, and the action bar changed method.
+ * Every one of those is a call site rather than a piece of logic, so they all go
+ * through {@link Generation} and this file compiles unchanged for both
+ * generations.</p>
  *
  * Lookup rules:
  * - vanilla content follows the configured wiki site ("auto" = game language);
@@ -51,17 +59,17 @@ public final class WikiJumpLogic {
      * Handles a key press while a screen is open. Returns true if the key was
      * consumed (the caller should then cancel the underlying event).
      *
-     * Any screen is accepted, not just container screens: with JEI, EMI or REI
+     * <p>Any screen is accepted, not just container screens: with JEI, EMI or REI
      * installed, their item lists and bookmarks are drawn on every screen, and
-     * those are precisely the places where a lookup is most useful.
+     * those are precisely the places where a lookup is most useful.</p>
      */
-    public static boolean onScreenKey(Screen screen, int keyCode, int scanCode) {
-        if (screen == null || WikiKey.openWiki == null
-                || !WikiKey.openWiki.matches(keyCode, scanCode)) {
+    public static boolean onScreenKey(Screen screen, KeyPress press) {
+        if (screen == null || WikiKey.openWiki == null || press == null
+                || !Generation.get().keyMatches(WikiKey.openWiki, press)) {
             return false;
         }
         // Don't hijack typing in search boxes and other text fields.
-        if (isTyping(screen, keyCode, scanCode)) {
+        if (isTyping(screen, press)) {
             return false;
         }
         ItemStack stack = hoveredItem(screen);
@@ -72,9 +80,9 @@ public final class WikiJumpLogic {
         if (title.isEmpty()) {
             return false;
         }
-        openWiki(title, stack.getDescriptionId(),
-                namespaceOf(BuiltInRegistries.ITEM.getKey(stack.getItem())),
-                Screen.hasShiftDown());
+        openWiki(title, Generation.get().descriptionId(stack),
+                Generation.get().namespaceOfItem(stack.getItem()),
+                Generation.get().shiftDown());
         return true;
     }
 
@@ -105,7 +113,7 @@ public final class WikiJumpLogic {
      * is; the {@code keyPressed} probe catches the odd custom field that does
      * not extend it.
      */
-    private static boolean isTyping(Screen screen, int keyCode, int scanCode) {
+    private static boolean isTyping(Screen screen, KeyPress press) {
         GuiEventListener focused = screen.getFocused();
         if (focused == null) {
             return false;
@@ -113,7 +121,7 @@ public final class WikiJumpLogic {
         if (focused instanceof EditBox box && box.canConsumeInput()) {
             return true;
         }
-        return focused.keyPressed(keyCode, scanCode, 0);
+        return Generation.get().keyPressed(focused, press);
     }
 
     /**
@@ -125,7 +133,7 @@ public final class WikiJumpLogic {
         if (mc.player == null || mc.level == null) {
             return;
         }
-        boolean english = Screen.hasShiftDown();
+        boolean english = Generation.get().shiftDown();
         HitResult hit = mc.hitResult;
         if (hit != null) {
             String title = null;
@@ -135,12 +143,12 @@ public final class WikiJumpLogic {
                 BlockState state = mc.level.getBlockState(blockHit.getBlockPos());
                 title = state.getBlock().getName().getString();
                 translationKey = state.getBlock().getDescriptionId();
-                namespace = namespaceOf(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
+                namespace = Generation.get().namespaceOfBlock(state.getBlock());
             } else if (hit.getType() == HitResult.Type.ENTITY && hit instanceof EntityHitResult entityHit) {
                 Entity entity = entityHit.getEntity();
                 title = entity.getType().getDescription().getString();
                 translationKey = entity.getType().getDescriptionId();
-                namespace = namespaceOf(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()));
+                namespace = Generation.get().namespaceOfEntityType(entity.getType());
             }
             if (title != null && !title.isEmpty()) {
                 openWiki(title, translationKey, namespace, english);
@@ -153,8 +161,8 @@ public final class WikiJumpLogic {
             ItemStack mainHand = mc.player.getMainHandItem();
             if (!mainHand.isEmpty()) {
                 openWiki(mainHand.getHoverName().getString(),
-                        mainHand.getDescriptionId(),
-                        namespaceOf(BuiltInRegistries.ITEM.getKey(mainHand.getItem())),
+                        Generation.get().descriptionId(mainHand),
+                        Generation.get().namespaceOfItem(mainHand.getItem()),
                         english);
                 return;
             }
@@ -233,7 +241,7 @@ public final class WikiJumpLogic {
     /** Opens the URL in the system browser, with an action-bar message on success. */
     private static void openUrl(String url, String pageTitle, String messageKey) {
         try {
-            Util.getPlatform().openUri(URI.create(url));
+            Generation.get().openUri(URI.create(url));
         } catch (Exception e) {
             WikiJump.LOGGER.error("Failed to open wiki URL: {}", url, e);
             actionBar("message.wikijump.open_failed");
@@ -242,23 +250,17 @@ public final class WikiJumpLogic {
         if (WikiJumpConfig.get().showOpenMessage) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player != null) {
-                mc.player.displayClientMessage(
-                        Component.translatable(messageKey, pageTitle).withStyle(ChatFormatting.GRAY), true);
+                actionBar(messageKey, pageTitle);
             }
         }
     }
 
-    private static void actionBar(String key) {
+    private static void actionBar(String key, Object... args) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) {
-            mc.player.displayClientMessage(
-                    Component.translatable(key).withStyle(ChatFormatting.GRAY), true);
+            Generation.get().actionBar(
+                    Component.translatable(key, args).withStyle(ChatFormatting.GRAY));
         }
-    }
-
-    /** Registry namespace of the content ("minecraft" for vanilla, mod id otherwise). */
-    private static String namespaceOf(ResourceLocation id) {
-        return id != null ? id.getNamespace() : "minecraft";
     }
 
     /** True when the text contains CJK unified ideographs, i.e. it is a Chinese name. */

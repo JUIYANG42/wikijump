@@ -1,0 +1,40 @@
+plugins {
+    id 'wikijump-loader'
+    // New unobfuscated plugin id — see modern/build.gradle for why.
+    id 'net.fabricmc.fabric-loom'
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+
+    // No `mappings` line on purpose. 26.x ships unobfuscated, so there are no
+    // Mojang mappings to download — declaring any makes Loom fail setup with
+    // "Failed to find official mojang mappings for 26.1.2".
+    //
+    // Loom 1.15+ also dropped the remap-aware `modImplementation` for
+    // unobfuscated Minecraft: there is nothing left to remap, so plain
+    // `implementation` is the correct configuration now.
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+}
+
+loom {
+    // The 26.x access widener uses the `official` namespace; the shared 1.21.1
+    // one still says `named`. Same file name, so this project's copy wins here
+    // and the shared copy is filtered out of the jar by wikijump-loader.gradle.
+    def local = file("src/main/resources/${mod_id}.accesswidener")
+    def aw = local.exists()
+            ? local
+            : rootProject.file("../common/src/main/resources/${mod_id}.accesswidener")
+    if (aw.exists()) {
+        accessWidenerPath.set(aw)
+    }
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+            runDir('runs/client')
+        }
+    }
+}

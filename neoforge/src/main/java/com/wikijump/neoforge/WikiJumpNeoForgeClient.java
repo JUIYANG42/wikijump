@@ -7,6 +7,7 @@ import com.wikijump.WikiJump;
 import com.wikijump.WikiJumpCommands;
 import com.wikijump.WikiJumpLogic;
 import com.wikijump.WikiKey;
+import com.wikijump.compat.KeyPress;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -57,7 +58,8 @@ public class WikiJumpNeoForgeClient {
 
     @SubscribeEvent
     public void onScreenKey(ScreenEvent.KeyPressed.Pre event) {
-        if (WikiJumpLogic.onScreenKey(event.getScreen(), event.getKeyCode(), event.getScanCode())) {
+        if (WikiJumpLogic.onScreenKey(event.getScreen(),
+                new KeyPress(event.getKeyCode(), event.getScanCode(), event.getModifiers()))) {
             event.setCanceled(true);
         }
     }

@@ -1,0 +1,67 @@
+// WikiJump — Minecraft 26.1 generation.
+//
+// This build is deliberately separate from the root one (see gradle.properties
+// for why). It has no `forge` project: Forge never shipped a 26.x release, so
+// Forge stays on 1.21.1 in the root build.
+//
+// `common`, `fabric` and `neoforge` keep the same project names as the root
+// build so the two convention plugins in buildSrc stay almost identical.
+
+pluginManagement {
+    repositories {
+        // Chinese CDN mirrors first — the upstream repositories are reached over
+        // a slow international link from this network. Each mirror only has to
+        // be complete enough to answer; anything it lacks falls through to the
+        // real repository listed further down, so ordering these first is safe.
+        maven {
+            name = 'AliyunGradlePlugin'
+            url = uri('https://maven.aliyun.com/repository/gradle-plugin')
+        }
+        maven {
+            name = 'AliyunCentral'
+            url = uri('https://maven.aliyun.com/repository/central')
+        }
+        gradlePluginPortal()
+        mavenCentral()
+        // Fabric's maven must be checked BEFORE the plugin portal: loom drags in
+        // net.fabricmc.unpick artifacts that only exist on maven.fabricmc.net.
+        maven {
+            name = 'Fabric'
+            url = uri('https://maven.fabricmc.net')
+        }
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Sponge'
+                    url = uri('https://repo.spongepowered.org/repository/maven-public')
+                }
+            }
+            filter {
+                includeGroupAndSubgroups('org.spongepowered')
+            }
+        }
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'NeoForged'
+                    url = uri('https://maven.neoforged.net/releases')
+                }
+            }
+            filter {
+                includeGroupAndSubgroups('net.neoforged')
+            }
+        }
+    }
+}
+
+plugins {
+    // 1.0.0 is the line that supports Gradle 9; 0.8.0 (used by the root build)
+    // predates it.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'wikijump-modern'
+// No `common` project here: unlike the root build, the two loader projects pull
+// the shared sources in directly. See buildSrc/src/main/groovy/wikijump-loader.gradle.
+include('fabric')
+include('neoforge')

@@ -1,0 +1,33 @@
+plugins {
+    id 'wikijump-loader'
+    id 'net.neoforged.moddev'
+}
+
+neoForge {
+    // 26.x uses four version segments: <mc major>.<mc minor>.<mc patch>.<build>,
+    // so 26.1.2.109 means Minecraft 26.1.2. ModDevGradle derives the NeoForm
+    // version from this, which is why nothing here hardcodes one.
+    version = neoforge_version
+
+    // Shared AT, applied here rather than in a `:common` project because this
+    // build has none. Opens AbstractContainerScreen#hoveredSlot (Mojmap names)
+    // for hover detection in container screens.
+    def at = rootProject.file('../common/src/main/resources/META-INF/wikijump-common.cfg')
+    if (at.exists()) {
+        accessTransformers.from(at.absolutePath)
+    }
+
+    runs {
+        configureEach {
+            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
+        }
+        client {
+            client()
+        }
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}

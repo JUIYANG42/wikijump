@@ -1,5 +1,6 @@
 {
     "key.categories.wikijump": "Wiki Jump",
+    "key.category.wikijump.main": "Wiki Jump",
     "key.wikijump.open_wiki": "Open Wiki Page (Shift: English foreign search)",
 
     "message.wikijump.opening": "Opening wiki page: %s",

@@ -1,5 +1,6 @@
 {
     "key.categories.wikijump": "Wiki 跳转",
+    "key.category.wikijump.main": "Wiki 跳转",
     "key.wikijump.open_wiki": "打开 Wiki 页面（Shift：英文外网搜索）",
 
     "message.wikijump.opening": "正在打开 Wiki 页面：%s",

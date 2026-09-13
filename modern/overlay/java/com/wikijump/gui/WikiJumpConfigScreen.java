@@ -1,6 +1,6 @@
 package com.wikijump.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -11,22 +11,19 @@ import java.util.function.BiConsumer;
 /**
  * In-game settings screen, opened with {@code /wikijump}.
  *
- * <p>This file is deliberately thin: the layout, the widget assembly and the
- * config plumbing all live in {@link ConfigLayout}, which both Minecraft
- * generations share. Only the two things that genuinely moved in 26.1 are left
- * here, and each is a single method:</p>
+ * <p><b>26.1 generation variant</b> (lives in {@code modern/overlay/java}). This
+ * file is deliberately thin: the layout, the widget assembly and the config
+ * plumbing all live in {@link ConfigLayout}, which both generations share. Only
+ * the two things that genuinely moved in 26.1 are left here, and each is a
+ * single method:</p>
  * <ul>
- *   <li>{@code Screen#render(GuiGraphics, ...)} — 26.1 replaced it with
- *       {@code extractRenderState(GuiGraphicsExtractor, ...)}, together with
- *       {@code drawString}/{@code drawCenteredString} becoming
+ *   <li>{@code Screen#render(GuiGraphics, ...)} became
+ *       {@code Screen#extractRenderState(GuiGraphicsExtractor, ...)}, together
+ *       with {@code drawString}/{@code drawCenteredString} becoming
  *       {@code text}/{@code centeredText};</li>
- *   <li>{@code CycleButton.builder} — 26.1 folded {@code withInitialValue} into
- *       the builder call.</li>
+ *   <li>{@code CycleButton.builder} folded {@code withInitialValue} into the
+ *       builder call, so it takes the initial value directly.</li>
  * </ul>
- *
- * <p>Because the render override is part of the class rather than a call site,
- * no single file can straddle both generations: this is the 1.21.1 copy, and
- * {@code modern/overlay/java} holds the 26.1 one.</p>
  *
  * <p>Edits are written straight into the shared
  * {@link com.wikijump.config.WikiJumpConfig} instance as the player makes them,
@@ -50,17 +47,17 @@ public class WikiJumpConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         layout.draw(new ConfigLayout.TextSink() {
             @Override
             public void text(Component line, int x, int y, int color) {
-                graphics.drawString(font, line, x, y, color);
+                graphics.text(font, line, x, y, color);
             }
 
             @Override
             public void centeredText(Component line, int centerX, int y, int color) {
-                graphics.drawCenteredString(font, line, centerX, y, color);
+                graphics.centeredText(font, line, centerX, y, color);
             }
         });
     }
@@ -70,14 +67,13 @@ public class WikiJumpConfigScreen extends Screen {
         layout.onClose();
     }
 
-    /** 1.21.1's cycle-button builder takes the initial value as a separate call. */
+    /** 26.1's cycle-button builder takes the initial value directly. */
     private static CycleButton<String> siteButton(int x, int y, int width, int height,
                                                  List<String> values, String initialValue,
                                                  Component label,
                                                  BiConsumer<CycleButton<String>, String> onChanged) {
-        return CycleButton.<String>builder(ConfigLayout::siteLabel)
+        return CycleButton.<String>builder(ConfigLayout::siteLabel, initialValue)
                 .withValues(values)
-                .withInitialValue(initialValue)
                 .create(x, y, width, height, label, onChanged::accept);
     }
 }

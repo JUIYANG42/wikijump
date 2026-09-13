@@ -1,0 +1,29 @@
+// WikiJump — Minecraft 26.1 generation.
+//
+// Why this build is separate from the root one
+// --------------------------------------------
+// Root (`../`, Gradle 8.14.5) builds MC 1.21.1 for all three loaders.
+// This build (Gradle 9.7.1) builds MC 26.1.2 for Fabric and NeoForge only.
+//
+// The split is forced by the toolchain, not by preference:
+//   * ForgeGradle 6 supports Gradle 8 only, so Forge can never move to the
+//     Gradle 9 line that the 26.x loaders require. Keeping Forge on 1.21.1 and
+//     giving 26.x its own wrapper avoids pinning the whole repo to Gradle 8.
+//   * Loom 1.17 (required for unobfuscated 26.x) requires Gradle 9.
+//   * ModDevGradle 2.0.141+ is required for 26.x; 2.0.146 already satisfies it.
+//
+// Both builds read the same `../common/src/main/java` sources, so shared code
+// is still written once. Anything that cannot be written once — the render
+// layer, which went from GuiGraphics to GuiGraphicsExtractor — lives in a
+// per-generation overlay directory instead; see
+// buildSrc/src/main/groovy/wikijump-loader.gradle for the four-layer merge.
+
+plugins {
+    // The NEW plugin id, not the legacy `fabric-loom`. 26.x is unobfuscated, and
+    // only `net.fabricmc.fabric-loom` builds without remapping — the legacy id
+    // insists on a `mappings` dependency and fails with
+    // "Configuration 'mappings' has no dependencies".
+    id 'net.fabricmc.fabric-loom' version '1.17.20' apply false
+    // No ForgeGradle here on purpose — there is no Forge for 26.x.
+    id 'net.neoforged.moddev' version '2.0.146' apply false
+}
