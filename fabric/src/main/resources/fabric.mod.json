@@ -16,7 +16,13 @@
     "entrypoints": {
         "client": [
             "com.wikijump.fabric.WikiJumpFabricClient"
+        ],
+        "modmenu": [
+            "com.wikijump.fabric.WikiJumpModMenu"
         ]
+    },
+    "suggests": {
+        "modmenu": "*"
     },
     "accessWidener": "${mod_id}.accesswidener",
     "depends": {

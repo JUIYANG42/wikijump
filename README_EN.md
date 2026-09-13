@@ -55,7 +55,7 @@ Commands are client-side only, so they work in singleplayer and on any server wi
 
 ## In-Game Settings Screen
 
-Two ways in: run `/wikijump` in game, or select WikiJump in the mod list and press its **Config** button (NeoForge and Forge ship such a list; the button used to be greyed out and now opens this screen, returning to the mod list when closed). Fabric has no built-in mod list — use the `/wikijump` command there.
+Two ways in: run `/wikijump` in game, or select WikiJump in the mod list and press its **Config** button. NeoForge and Forge ship such a list and the button used to be greyed out; it now opens this screen and returns to the mod list when closed. Fabric has no built-in mod list, so install [Mod Menu](https://modrinth.com/mod/modmenu) to get the same button there (Mod Menu is optional — without it nothing changes).
 
 Everything is adjustable:
 

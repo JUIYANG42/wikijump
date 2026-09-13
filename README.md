@@ -55,7 +55,7 @@
 
 ## 游戏内设置界面
 
-两种打开方式：游戏内输入 `/wikijump`，或在模组列表里选中 WikiJump 后点**配置**按钮（NeoForge / Forge 的模组列表自带这个按钮，之前是灰的，现在会直接打开本界面并返回模组列表）。Fabric 自身没有模组列表界面，用 `/wikijump` 命令即可。
+两种打开方式：游戏内输入 `/wikijump`，或在模组列表里选中 WikiJump 后点**配置**按钮。NeoForge / Forge 自带模组列表，这个按钮之前是灰的，现在会直接打开本界面并返回模组列表；Fabric 自身没有模组列表，装上 [Mod Menu](https://modrinth.com/mod/modmenu) 后同样会有这个按钮（没装也不影响，Mod Menu 是可选依赖）。
 
 可调整的全部选项：
 

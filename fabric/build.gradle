@@ -3,6 +3,15 @@ plugins {
     id 'fabric-loom'
 }
 
+repositories {
+    // Mod Menu. Optional integration, so it lives here rather than in the shared
+    // convention plugin: only the Fabric projects need this repository.
+    maven {
+        name = 'TerraformersMC'
+        url = 'https://maven.terraformersmc.com/releases/'
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.layered {
@@ -10,6 +19,12 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    // compileOnly, never bundled or exposed: the integration class implements
+    // ModMenuApi, so Fabric only loads it if Mod Menu asks for the "modmenu"
+    // entrypoint. Without Mod Menu installed nothing references it and the mod
+    // runs unchanged.
+    modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}"
 }
 
 loom {
