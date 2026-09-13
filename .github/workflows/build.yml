@@ -64,11 +64,25 @@ jobs:
       - name: Build the 26.1 loaders
         working-directory: modern
         # `shell: bash` for pipefail, so a Gradle failure is not masked by tee.
+        #
+        # Retried once. The first ever run of this job died 143s in (the second
+        # took 47s and passed), and the only things it does that the 1.21.1 job
+        # does not are network-only: it fetches its Gradle distribution from a
+        # mirror instead of services.gradle.org, and it resolves plugins through
+        # Aliyun first. The wrapper's distribution directory is dropped before
+        # the retry so a half-written zip cannot poison the second attempt.
         shell: bash
         run: |
           set -o pipefail
-          ./gradlew :fabric:build :neoforge:build --console=plain 2>&1 \
-            | tee "$RUNNER_TEMP/modern-build.log"
+          for attempt in 1 2; do
+            if ./gradlew :fabric:build :neoforge:build --console=plain 2>&1 \
+                 | tee "$RUNNER_TEMP/modern-build.log"; then
+              exit 0
+            fi
+            echo "::warning::modern build attempt $attempt failed"
+            rm -rf "$HOME/.gradle/wrapper/dists/gradle-9.7.1-bin"
+          done
+          exit 1
 
       # A failed step's log is only viewable in the web UI, and the modern build
       # is the one place whose failures are hardware/network specific (it is the

@@ -70,14 +70,22 @@ jobs:
 
       - name: Build the 26.1 loaders
         working-directory: modern
-        # Same tee + failure-report pair as in build.yml: the modern build is the
-        # only one that fetches its Gradle distribution from a mirror, so when it
-        # breaks the reason has to survive outside the step log.
+        # Same tee + single retry + failure-report trio as in build.yml: this is
+        # the one step whose dependencies are network-only (mirrored Gradle
+        # distribution, Aliyun plugin lookups), and a tag push should not fail
+        # for a reason a second attempt fixes.
         shell: bash
         run: |
           set -o pipefail
-          ./gradlew :fabric:build :neoforge:build --console=plain 2>&1 \
-            | tee "$RUNNER_TEMP/modern-build.log"
+          for attempt in 1 2; do
+            if ./gradlew :fabric:build :neoforge:build --console=plain 2>&1 \
+                 | tee "$RUNNER_TEMP/modern-build.log"; then
+              exit 0
+            fi
+            echo "::warning::modern build attempt $attempt failed"
+            rm -rf "$HOME/.gradle/wrapper/dists/gradle-9.7.1-bin"
+          done
+          exit 1
 
       - name: Report the modern build failure
         if: failure()
