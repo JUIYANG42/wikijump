@@ -11,7 +11,7 @@
 | **1.21.1** | NeoForge / Forge / Fabric | `wikijump-<加载器>-1.21.1-<版本>.jar` |
 | **26.1.x** | NeoForge / Fabric | `wikijump-<加载器>-26.1.2-<版本>.jar` |
 
-Forge 没有 26.x 版本（该加载器止步于 1.21.x），所以 26.1 只有 NeoForge 与 Fabric 两端的构建。两代共用同一份核心代码，功能与配置项完全一致。
+
 
 ## 功能
 
