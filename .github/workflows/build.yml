@@ -63,7 +63,38 @@ jobs:
 
       - name: Build the 26.1 loaders
         working-directory: modern
-        run: ./gradlew :fabric:build :neoforge:build
+        # `shell: bash` for pipefail, so a Gradle failure is not masked by tee.
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew :fabric:build :neoforge:build --console=plain 2>&1 \
+            | tee "$RUNNER_TEMP/modern-build.log"
+
+      # A failed step's log is only viewable in the web UI, and the modern build
+      # is the one place whose failures are hardware/network specific (it is the
+      # only build that fetches its Gradle distribution from a mirror). Copy the
+      # tail into the job summary, which is readable through the public API.
+      - name: Report the modern build failure
+        if: failure()
+        shell: bash
+        run: |
+          {
+            echo '### Modern (26.1) build failed'
+            echo
+            echo 'Gradle distribution mirror:'
+            echo
+            echo '```'
+            curl -s -o /dev/null -w 'mirrors.cloud.tencent.com -> HTTP %{http_code} in %{time_total}s\n' \
+              --max-time 45 -I https://mirrors.cloud.tencent.com/gradle/gradle-9.7.1-bin.zip \
+              || echo 'mirror probe failed'
+            echo '```'
+            echo
+            echo 'Tail of the build log:'
+            echo
+            echo '```'
+            tail -n 250 "$RUNNER_TEMP/modern-build.log" 2>/dev/null || echo '(no log captured)'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Fabric jar (26.1)
         uses: actions/upload-artifact@v4
