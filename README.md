@@ -2,9 +2,16 @@
 
 **简体中文** | [English](README_EN.md)
 
-一个 Minecraft **1.21.1** 客户端模组，同时支持 **NeoForge / Forge / Fabric** 三大加载器。
+一个 Minecraft 客户端模组，支持 **NeoForge / Forge / Fabric** 三大加载器，提供 **1.21.1** 与 **26.1** 两代构建。
 
 按一下按键，就能在浏览器中打开你正在查看的方块、生物或物品的 Minecraft Wiki 百科页面。
+
+| Minecraft | 加载器 | jar |
+|---|---|---|
+| **1.21.1** | NeoForge / Forge / Fabric | `wikijump-<加载器>-1.21.1-<版本>.jar` |
+| **26.1.x** | NeoForge / Fabric | `wikijump-<加载器>-26.1.2-<版本>.jar` |
+
+Forge 没有 26.x 版本（该加载器止步于 1.21.x），所以 26.1 只有 NeoForge 与 Fabric 两端的构建。两代共用同一份核心代码，功能与配置项完全一致。
 
 ## 功能
 
@@ -119,40 +126,48 @@
 
 ## 从源码构建
 
-需要 **JDK 21**。项目使用 Gradle Wrapper，无需本地安装 Gradle：
+需要 **JDK 21**（26.1 那代需要 **JDK 25**）。两代是两个并列的 Gradle 构建，各自带 wrapper，无需本地安装 Gradle：
 
 ```bash
-# 构建全部三端
+# 1.21.1：三端
 ./gradlew build
 
-# 或单独构建某一端
-./gradlew :fabric:build
-./gradlew :neoforge:build
-./gradlew :forge:build
+# 26.1：只有 fabric 与 neoforge
+cd modern && ./gradlew :fabric:build :neoforge:build
 ```
 
 产物位置：
 
-| 加载器 | jar 路径 |
-|---|---|
-| Fabric | `fabric/build/libs/wikijump-fabric-1.21.1-*.jar` |
-| NeoForge | `neoforge/build/libs/wikijump-neoforge-1.21.1-*.jar` |
-| Forge | `forge/build/libs/wikijump-forge-1.21.1-*.jar` |
+| 代 | 加载器 | jar 路径 |
+|---|---|---|
+| 1.21.1 | Fabric | `fabric/build/libs/wikijump-fabric-1.21.1-*.jar` |
+| 1.21.1 | NeoForge | `neoforge/build/libs/wikijump-neoforge-1.21.1-*.jar` |
+| 1.21.1 | Forge | `forge/build/libs/wikijump-forge-1.21.1-*.jar` |
+| 26.1 | Fabric | `modern/fabric/build/libs/wikijump-fabric-26.1.2-*.jar` |
+| 26.1 | NeoForge | `modern/neoforge/build/libs/wikijump-neoforge-26.1.2-*.jar` |
 
-在开发环境中试运行：`./gradlew :fabric:runClient`（或 `:neoforge:runClient` / `:forge:runClient`）。
+1.21.1 的 Fabric 端要注意：旧版 Loom 的 `:fabric:jar` 只产出 `build/devlibs/` 里的 `-dev.jar`，能装进游戏的可发布 jar 在 `build/libs/`，所以要跑 `build` 而不是 `jar`。
+
+在开发环境中试运行：`./gradlew :fabric:runClient`（或 `:neoforge:runClient` / `:forge:runClient`；26.1 则在 `modern/` 目录下跑同样的任务）。
 
 ## 项目结构
 
 ```
 wikijump/
-├── common/    # 共享核心逻辑（目标解析、URL 构建、配置、设置界面、命令树），被三端分别编译
+├── common/    # 共享核心逻辑（目标解析、URL 构建、配置、设置界面、命令树），被两代分别编译
 ├── fabric/    # Fabric 适配器（按键注册、屏幕/刻事件桥接）+ access widener
 ├── neoforge/  # NeoForge 适配器 + access transformer
 ├── forge/     # Forge 适配器 + access transformer
-└── buildSrc/  # Gradle 约定插件（源码级共享 common 模块）
+├── buildSrc/  # 1.21.1 这代的 Gradle 约定插件
+└── modern/    # 26.1 这代：独立的 settings.gradle / wrapper / buildSrc
+    ├── fabric/     # 该代独有的文件（access widener 等）
+    ├── neoforge/   # 同上
+    └── overlay/    # 两代无法共用、但本代两端共用的少数替换文件
 ```
 
-三端统一使用 Mojang 官方映射，共享代码零差异编译。
+`modern/` 与根构建**共用同一份 `common/` 源码**：它按 `common/` → 根 `<加载器>/` → `overlay/` → 项目自身四层合并后再编译，后一层覆盖前一层的同名文件。所以「只写一份」是常态，只有渲染入口这类真正代际不同的代码才放进 `overlay/`。
+
+1.21.1 三端统一使用 Mojang 官方映射；26.x 是不混淆版本，无需映射。共享代码在两代间零差异编译。
 
 ## 已知限制
 

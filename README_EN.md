@@ -2,9 +2,16 @@
 
 [简体中文](README.md) | **English**
 
-A Minecraft **1.21.1** client-side mod, available for all three major loaders: **NeoForge / Forge / Fabric**.
+A Minecraft client-side mod for **NeoForge / Forge / Fabric**, shipped in two generations: **1.21.1** and **26.1**.
 
 Press one key to open the Minecraft Wiki page of the block, entity, or item you are looking at — right in your browser.
+
+| Minecraft | Loaders | jar |
+|---|---|---|
+| **1.21.1** | NeoForge / Forge / Fabric | `wikijump-<loader>-1.21.1-<version>.jar` |
+| **26.1.x** | NeoForge / Fabric | `wikijump-<loader>-26.1.2-<version>.jar` |
+
+Forge has no 26.x release (that loader stops at 1.21.x), so the 26.1 generation only builds for NeoForge and Fabric. Both generations share one copy of the core code and have identical features and config options.
 
 ## Features
 
@@ -119,27 +126,29 @@ Changes made in the settings screen apply **immediately**; after editing this fi
 
 ## Building from Source
 
-Requires **JDK 21**. The project uses the Gradle Wrapper, no local Gradle needed:
+Requires **JDK 21** for the 1.21.1 generation (**JDK 25** for the 26.1 one). The two generations are separate Gradle builds, each with its own wrapper — no local Gradle needed:
 
 ```bash
-# Build all three loaders
+# 1.21.1: all three loaders
 ./gradlew build
 
-# Or build a single loader
-./gradlew :fabric:build
-./gradlew :neoforge:build
-./gradlew :forge:build
+# 26.1: NeoForge and Fabric only
+cd modern && ./gradlew :fabric:build :neoforge:build
 ```
 
 Artifacts:
 
-| Loader | jar path |
-|---|---|
-| Fabric | `fabric/build/libs/wikijump-fabric-1.21.1-*.jar` |
-| NeoForge | `neoforge/build/libs/wikijump-neoforge-1.21.1-*.jar` |
-| Forge | `forge/build/libs/wikijump-forge-1.21.1-*.jar` |
+| Generation | Loader | jar path |
+|---|---|---|
+| 1.21.1 | Fabric | `fabric/build/libs/wikijump-fabric-1.21.1-*.jar` |
+| 1.21.1 | NeoForge | `neoforge/build/libs/wikijump-neoforge-1.21.1-*.jar` |
+| 1.21.1 | Forge | `forge/build/libs/wikijump-forge-1.21.1-*.jar` |
+| 26.1 | Fabric | `modern/fabric/build/libs/wikijump-fabric-26.1.2-*.jar` |
+| 26.1 | NeoForge | `modern/neoforge/build/libs/wikijump-neoforge-26.1.2-*.jar` |
 
-Try it in a dev environment: `./gradlew :fabric:runClient` (or `:neoforge:runClient` / `:forge:runClient`).
+One gotcha on the 1.21.1 Fabric side: with the old Loom, `:fabric:jar` only produces the `-dev.jar` in `build/devlibs/`; the installable jar lands in `build/libs/`, so run `build`, not `jar`.
+
+Try it in a dev environment: `./gradlew :fabric:runClient` (or `:neoforge:runClient` / `:forge:runClient`; for 26.1, run the same tasks from the `modern/` directory).
 
 ## Project Layout
 
@@ -149,10 +158,16 @@ wikijump/
 ├── fabric/    # Fabric adapter (key registration, screen/tick event bridge) + access widener
 ├── neoforge/  # NeoForge adapter + access transformer
 ├── forge/     # Forge adapter + access transformer
-└── buildSrc/  # Gradle convention plugins (source-level sharing of the common module)
+├── buildSrc/  # Gradle convention plugins for the 1.21.1 generation
+└── modern/    # The 26.1 generation: its own settings.gradle, wrapper and buildSrc
+    ├── fabric/     # Files only this generation needs (access widener, …)
+    ├── neoforge/   # Likewise
+    └── overlay/    # The few replacements both loaders of this generation share
 ```
 
-All three loaders use official Mojang mappings, so the shared code compiles identically everywhere.
+`modern/` builds from **the same `common/` sources** as the root build: it merges `common/` → the root `<loader>/` → `overlay/` → the project's own directory, in that order, with each later layer overriding same-named files from the earlier ones. Writing a file once is therefore the norm; only genuinely generation-specific code (the render entry points) goes into `overlay/`.
+
+The 1.21.1 loaders all use official Mojang mappings; 26.x is unobfuscated and needs none. Shared code compiles identically across both generations.
 
 ## Known Limitations
 
