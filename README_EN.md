@@ -16,7 +16,7 @@ Press one key to open the Minecraft Wiki page of the block, entity, or item you 
 - **Forced English foreign search**: hold Shift while pressing the key (`Shift+K` by default) to look the target up using its **in-game English name** (en_us translation, modded content included) — modded content goes to `moddedForeignUrl` (FTB Wiki by default), vanilla content to the English counterpart of the configured wiki (Chinese sites switch to `minecraft.wiki` automatically). Great for Chinese-named items when you want the English wiki instead
 - Page titles use the in-game localized name (Chinese game → Chinese page), URL-encoded automatically
 - Vanilla content defaults to the wiki matching the game language: Chinese → `zh.minecraft.wiki`, everything else → `minecraft.wiki`
-- **In-game settings screen**: type `/wikijump` to change every option, with changes applied immediately — no JSON editing required
+- **In-game settings screen**: run `/wikijump`, or press the **Config** button next to WikiJump in the mod list — every option is there, and changes apply immediately, no JSON editing required
 - **Your own sites**: add "name + URL template" entries to the `sites` array in `config/wikijump.json` (MC百科, huijiwiki, the wiki of a modpack, …) and they appear in the settings screen's site dropdown, selectable like a built-in one
 - **Command lookup**: `/wikijump <name>` looks up any name directly, without needing to hold an item or aim at a block
 - **Key hint in tooltips**: the last line of every item tooltip names the key — and it follows the key you actually bound, so a rebind updates it automatically. Turn it off in the settings screen if you'd rather not have the extra line
@@ -55,7 +55,9 @@ Commands are client-side only, so they work in singleplayer and on any server wi
 
 ## In-Game Settings Screen
 
-Type `/wikijump` to open it. Everything is adjustable there:
+Two ways in: run `/wikijump` in game, or select WikiJump in the mod list and press its **Config** button (NeoForge and Forge ship such a list; the button used to be greyed out and now opens this screen, returning to the mod list when closed). Fabric has no built-in mod list — use the `/wikijump` command there.
+
+Everything is adjustable:
 
 - **Wiki site**: follow game language / minecraft.wiki / zh.minecraft.wiki / both Fandom wikis / **your own sites from the config file's `sites` array** / custom URL
 - **Three URL templates**: custom, modded Chinese-name search, modded other-language search

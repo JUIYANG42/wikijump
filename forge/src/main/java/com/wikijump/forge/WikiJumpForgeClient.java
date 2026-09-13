@@ -8,7 +8,9 @@ import com.wikijump.WikiJumpCommands;
 import com.wikijump.WikiJumpLogic;
 import com.wikijump.WikiKey;
 import com.wikijump.compat.KeyPress;
+import com.wikijump.gui.WikiJumpConfigScreen;
 import net.minecraft.client.KeyMapping;
+import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.ScreenEvent;
@@ -16,6 +18,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
 
@@ -27,6 +30,14 @@ import org.lwjgl.glfw.GLFW;
 public class WikiJumpForgeClient {
 
     public WikiJumpForgeClient() {
+        // Lights up the Config button of the mod list, the same way the
+        // NeoForge adapter does — Forge reads this extension point with
+        // ConfigScreenHandler.getScreenFactoryFor(info) and greys the button
+        // out when the mod registered none.
+        ModLoadingContext.get().registerExtensionPoint(
+                ConfigScreenHandler.ConfigScreenFactory.class,
+                () -> new ConfigScreenHandler.ConfigScreenFactory(
+                        (mc, parent) -> new WikiJumpConfigScreen(parent)));
         MinecraftForge.EVENT_BUS.register(this);
         WikiJump.LOGGER.info("WikiJump (Forge) initialized");
     }

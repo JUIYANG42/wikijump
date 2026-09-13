@@ -13,6 +13,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
@@ -40,11 +41,21 @@ import org.lwjgl.glfw.GLFW;
  *       handler therefore receives one argument instead of three;</li>
  *   <li>{@code ClientTickEvent.Post} no longer takes a phase argument.</li>
  * </ul>
+ *
+ * <p>The one thing that did <em>not</em> move is the Config button of the mod
+ * list, so that registration is not duplicated here — it is
+ * {@link ConfigScreenHook}, compiled into this generation straight from the
+ * root {@code neoforge} directory.</p>
  */
 @Mod(value = WikiJump.MOD_ID, dist = Dist.CLIENT)
 public class WikiJumpNeoForgeClient {
 
-    public WikiJumpNeoForgeClient() {
+    /**
+     * The {@link ModContainer} parameter is injected by FML and is what lets
+     * {@link ConfigScreenHook} light up the mod list's Config button.
+     */
+    public WikiJumpNeoForgeClient(ModContainer container) {
+        ConfigScreenHook.register(container);
         NeoForge.EVENT_BUS.register(this);
         WikiJump.LOGGER.info("WikiJump (NeoForge) initialized");
     }

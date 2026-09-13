@@ -11,6 +11,7 @@ import com.wikijump.compat.KeyPress;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -24,7 +25,12 @@ import org.lwjgl.glfw.GLFW;
 @Mod(value = WikiJump.MOD_ID, dist = Dist.CLIENT)
 public class WikiJumpNeoForgeClient {
 
-    public WikiJumpNeoForgeClient() {
+    /**
+     * The {@link ModContainer} parameter is injected by FML and is what makes
+     * the mod list's "Config" button work; see {@link ConfigScreenHook}.
+     */
+    public WikiJumpNeoForgeClient(ModContainer container) {
+        ConfigScreenHook.register(container);
         NeoForge.EVENT_BUS.register(this);
         WikiJump.LOGGER.info("WikiJump (NeoForge) initialized");
     }
