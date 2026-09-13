@@ -13,6 +13,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -45,13 +46,16 @@ public final class ConfigLayout {
     /** Sentinel value the site button uses for a user-supplied URL template. */
     private static final String CUSTOM = "custom:";
 
-    private static final List<String> SITES = List.of(
+    /**
+     * The sites shipped with the mod, in dropdown order. Sites the player added
+     * to the config file are listed after these, still before {@link #CUSTOM}.
+     */
+    private static final List<String> BUILT_IN_SITES = List.of(
             "auto",
             "minecraft.wiki",
             "zh.minecraft.wiki",
             "minecraft.fandom.com",
-            "minecraft.fandom.com/zh",
-            CUSTOM);
+            "minecraft.fandom.com/zh");
 
     private static final int PANEL_WIDTH = 330;
     private static final int LABEL_WIDTH = 132;
@@ -103,7 +107,10 @@ public final class ConfigLayout {
 
     /** Assembles every widget. Called from the screen's {@code init()}. */
     public void build(Font font, WidgetHost host, SiteButton siteButton) {
-        WikiJumpConfig cfg = WikiJumpConfig.get();
+        // Read the file again first: sites the player added to
+        // config/wikijump.json by hand should be in the dropdown the moment
+        // this screen opens, rather than after a restart.
+        WikiJumpConfig cfg = WikiJumpConfig.reload();
 
         left = (screen.width - PANEL_WIDTH) / 2;
         int controlX = left + LABEL_WIDTH;
@@ -112,9 +119,15 @@ public final class ConfigLayout {
         int y = Math.max(24, (screen.height - panelHeight) / 2);
         titleY = y - 20;
 
-        // 1. Which wiki site vanilla content goes to.
-        String initialSite = SITES.contains(cfg.wikiSite) ? cfg.wikiSite : "auto";
-        host.add(siteButton.create(controlX, y, CONTROL_WIDTH, ROW_HEIGHT, SITES, initialSite,
+        // 1. Which wiki site lookups go to. The user's own sites from the
+        // config file sit between the built-in ones and the custom template.
+        List<String> sites = new ArrayList<>(BUILT_IN_SITES);
+        for (WikiJumpConfig.Site site : cfg.sites) {
+            sites.add(site.name);
+        }
+        sites.add(CUSTOM);
+        String initialSite = sites.contains(cfg.wikiSite) ? cfg.wikiSite : "auto";
+        host.add(siteButton.create(controlX, y, CONTROL_WIDTH, ROW_HEIGHT, sites, initialSite,
                 Component.translatable("wikijump.config.site"),
                 (button, value) -> {
                     cfg.wikiSite = value;
@@ -208,7 +221,11 @@ public final class ConfigLayout {
         customUrl.setTextColor(custom ? EditBox.DEFAULT_TEXT_COLOR : 0x707070);
     }
 
-    /** Display label for one value of the site cycle button. */
+    /**
+     * Display label for one value of the site cycle button. Built-in ids are
+     * printed as they are, and a user-defined site is shown under the name its
+     * config entry carries — the id and the label are the same string there.
+     */
     public static Component siteLabel(String id) {
         if (CUSTOM.equals(id)) {
             return Component.translatable("wikijump.config.site.custom");

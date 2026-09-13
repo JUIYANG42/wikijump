@@ -22,5 +22,5 @@
     "wikijump.config.show_message": "Show a message when opening",
     "wikijump.config.show_tooltip_hint": "Show the key hint in item tooltips",
     "wikijump.config.done": "Done",
-    "wikijump.config.hint": "{name} is replaced by the name you look up; leave a field empty to disable it"
+    "wikijump.config.hint": "{name} = URL-encoded name; extra sites live in config/wikijump.json"
 }

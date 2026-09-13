@@ -54,8 +54,16 @@ repositories {
 }
 
 jar {
+    // The suffix is resolved at configuration time rather than read inside the
+    // rename closure: that closure runs while the jar is written, and under the
+    // configuration cache it is restored without its script, so a bare
+    // `mod_name` in there would fail with MissingPropertyException. This build
+    // does not enable the cache (ForgeGradle writes into it during
+    // configuration), but the sibling modern/ build does, and the same
+    // construct must not be a trap there.
+    def licenseSuffix = "_${mod_name}"
     from(rootProject.file('LICENSE')) {
-        rename { "${it}_${mod_name}" }
+        rename { String fileName -> fileName + licenseSuffix }
     }
     manifest {
         attributes([

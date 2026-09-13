@@ -109,8 +109,15 @@ jar {
     // LICENSE lives at the repo root, one level above the nested modern build.
     def licenseFile = rootProject.file('../LICENSE')
     if (licenseFile.exists()) {
+        // The suffix is resolved here, while the build is still being
+        // configured, instead of being read inside the rename closure. That
+        // closure runs while the jar is written, and with the configuration
+        // cache on it is restored without its script — a bare `mod_name` there
+        // throws MissingPropertyException ("BrokenScript"), which only shows up
+        // once the jar task actually re-executes.
+        def licenseSuffix = "_${mod_name}"
         from(licenseFile) {
-            rename { "${it}_${mod_name}" }
+            rename { String fileName -> fileName + licenseSuffix }
         }
     }
     manifest {

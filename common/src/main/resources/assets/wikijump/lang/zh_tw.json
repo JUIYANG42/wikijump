@@ -22,5 +22,5 @@
     "wikijump.config.show_message": "開啟頁面時顯示提示",
     "wikijump.config.show_tooltip_hint": "在物品提示中顯示按鍵提醒",
     "wikijump.config.done": "完成",
-    "wikijump.config.hint": "{name} 會替換為查詢名稱；留空即停用該項"
+    "wikijump.config.hint": "{name} 替換為查詢名稱（URL 編碼）；自訂站點見 config/wikijump.json"
 }

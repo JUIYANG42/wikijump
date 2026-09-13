@@ -21,8 +21,6 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Loader-independent core: resolves what the player is looking at (hovered
@@ -42,7 +40,8 @@ import java.nio.charset.StandardCharsets;
  * - vanilla content follows the configured wiki site ("auto" = game language);
  * - modded content with a Chinese display name searches mcmod.cn (MC百科);
  * - other modded content searches the FTB Wiki;
- * - a "custom:" wikiSite template overrides everything;
+ * - an explicit site — your own entry from the config's "sites" array, or a
+ *   "custom:" template — overrides everything, modded content included;
  * - holding Shift while pressing the key (Shift+K by default) looks the target
  *   up on the foreign wiki using its in-game English (en_us) name instead.
  *
@@ -183,15 +182,15 @@ public final class WikiJumpLogic {
             openWikiInEnglish(pageTitle, translationKey, namespace, cfg);
             return;
         }
-        if (!"minecraft".equals(namespace) && !cfg.isCustom()) {
+        if (!"minecraft".equals(namespace) && !cfg.isExplicitSite()) {
             boolean chinese = containsChinese(pageTitle);
             if (chinese && !cfg.moddedChineseUrl.isEmpty()) {
-                openUrl(applyTemplate(cfg.moddedChineseUrl, pageTitle), pageTitle,
+                openUrl(WikiJumpConfig.fillTemplate(cfg.moddedChineseUrl, pageTitle), pageTitle,
                         "message.wikijump.searching");
                 return;
             }
             if (!chinese && !cfg.moddedForeignUrl.isEmpty()) {
-                openUrl(applyTemplate(cfg.moddedForeignUrl, pageTitle), pageTitle,
+                openUrl(WikiJumpConfig.fillTemplate(cfg.moddedForeignUrl, pageTitle), pageTitle,
                         "message.wikijump.searching");
                 return;
             }
@@ -201,19 +200,20 @@ public final class WikiJumpLogic {
 
     /**
      * Forced English lookup: translates the target to its in-game en_us name
-     * and searches the foreign wiki — the FTB Wiki for modded content, the
-     * English counterpart of the configured wiki site for vanilla content.
+     * and searches the foreign side — an explicitly selected site first (its
+     * {@code englishUrl}, or its own template with the English name), then the
+     * FTB Wiki for modded content, then the English counterpart of the
+     * configured wiki site.
      */
     private static void openWikiInEnglish(String pageTitle, String translationKey,
                                           String namespace, WikiJumpConfig cfg) {
         String englishName = EnglishNames.resolve(translationKey, pageTitle);
-        if (!"minecraft".equals(namespace) && !cfg.isCustom() && !cfg.moddedForeignUrl.isEmpty()) {
-            openUrl(applyTemplate(cfg.moddedForeignUrl, englishName), englishName,
-                    "message.wikijump.searching");
+        if (cfg.isExplicitSite()) {
+            openUrl(cfg.urlFor(englishName, true), englishName, "message.wikijump.searching");
             return;
         }
-        if (cfg.isCustom()) {
-            openUrl(applyTemplate(cfg.customUrl, englishName), englishName,
+        if (!"minecraft".equals(namespace) && !cfg.moddedForeignUrl.isEmpty()) {
+            openUrl(WikiJumpConfig.fillTemplate(cfg.moddedForeignUrl, englishName), englishName,
                     "message.wikijump.searching");
             return;
         }
@@ -266,11 +266,5 @@ public final class WikiJumpLogic {
     /** True when the text contains CJK unified ideographs, i.e. it is a Chinese name. */
     private static boolean containsChinese(String text) {
         return text.codePoints().anyMatch(cp -> cp >= 0x4E00 && cp <= 0x9FFF);
-    }
-
-    /** Replaces {name} in a URL template with the URL-encoded page title. */
-    private static String applyTemplate(String template, String pageTitle) {
-        return template.replace("{name}", URLEncoder.encode(pageTitle, StandardCharsets.UTF_8)
-                .replace("+", "%20"));
     }
 }
